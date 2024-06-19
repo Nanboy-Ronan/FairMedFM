@@ -1,4 +1,75 @@
-# FairMedFM
+# <div align =center><img src=./figs/icon.png width=40> FairMedFM
+## <div align =center> Fairness Benchmarking for Medical Imaging Foundation Models
+![main](./figs/main.png)
 
 ## Abstract
-The advent of foundation models (FMs) in healthcare offers unprecedented opportunities to enhance medical diagnostics through automated classification and segmentation tasks. However, these models also raise significant concerns about their fairness and ethics, especially in diverse and underrepresented populations. Currently, there is no automated pipeline to benchmark the fairness performance of FMs for medical imaging. To fill this gap, we introduce \ours, the first framework for FM fairness research in medical imaging. \ours~encompasses all critical stages of applying a FM: from data preprocessing and FM integration to various downstream tasks, including classification and segmentation. It supports a wide range of medical datasets and sensitive attributes, enabling extensive evaluations across different modalities and applications. Our framework incorporates multiple adaptation strategies such as zero-shot learning, linear probing, parameter-efficient fine-tuning, and prompt-based segmentation. Furthermore, \ours~integrates common bias mitigation techniques directly into these models. Our contributions are threefold: (1) We present a systematic and comprehensive pipeline for medical FMs, covering every aspect from data handling to fairness evaluation. (2) Our framework supports extendible functionalities and applications, ensuring flexibility and robustness in evaluating FMs. (3) We provide an exhaustive analysis from multiple perspectives, offering new insights into the utility and fairness of medical FMs. This benchmark serves as a crucial platform for studying FM fairness in healthcare. It aims to guide the development of more equitable healthcare technologies over the long term. \ours~will be open-sourced and maintained to ensure sustained benefits to the health informatics community. The library of \ours~is available at \url{https://github.com/Nanboy-Ronan/FairMedFM}.
+The advent of foundation models (FMs) in healthcare offers unprecedented opportunities to enhance medical diagnostics through automated classification and segmentation tasks. However, these models also raise significant concerns about their fairness, especially when applied to diverse and underrepresented populations in healthcare applications. Currently, there is a lack of comprehensive benchmarks, standardized pipelines, and easily adaptable libraries to evaluate and understand the fairness performance of FMs in medical imaging, leading to considerable challenges in formulating and implementing solutions that ensure equitable outcomes across diverse patient populations. To fill this gap, we introduce FairMedFM, a fairness benchmark for FM research in medical imaging. FairMedFM integrates with 17 popular medical imaging datasets, encompassing different modalities, dimensionalities, and sensitive attributes. It explores 20 widely used FMs, with various usages such as zero-shot learning, linear probing, parameter-efficient fine-tuning, and prompting in various downstream tasks -- classification and segmentation. Our exhaustive analysis evaluates the fairness performance over different evaluation metrics from multiple perspectives, revealing the existence of bias, varied utility-fairness trade-offs on different FMs, consistent disparities on the same datasets regardless FMs, and limited effectiveness of existing unfairness mitigation methods. 
+
+## Structure
+
+FairMedFM captures comprehensive modules for benchmarking the fairness of foundation models in medical image analysis.
+
+![main](./figs/package.png)
+
+- **Dataloader**: provides a consistent interface for loading and processing imaging data across various modalities and dimensions, supporting both classification and segmentation tasks.
+- **Model**: a one-stop library that includes implementations of the most popular pre-trained foundation models for medical image analysis.
+- **Usage Wrapper**: encapsulates foundation models for various use cases and tasks, including linear probe, zero-shot inference, PEFT, promptable segmentation, etc.
+- **Trainer**: offers a unified workflow for fine-tuning and testing wrapped models, and includes state-of-the-art unfairness mitigation algorithms.
+- **Evaluation** includes a set of metrics and tools to visualize and analyze fairness across different tasks.
+
+|        Tasks         | Supported Usages                                        |                       Supported Models                       |                      Supported Datasets                      |
+| :------------------: | ------------------------------------------------------- | :----------------------------------------------------------: | :----------------------------------------------------------: |
+| Image Classification | Linear probe, zero-shot, CLIP adaptaion, PEFT           | CLIP, BLIP, BLIP2, MedCLIP, BiomedCLIP, PubMedCLIP, DINOv2, C2L, LVM-Med, MedMAE, MoCo-CXR | CheXpert, MIMIC-CXR, HAM10000, FairVLMed10k, GF3300, PAPILA, BRSET, COVID-CT-MD, ADNI-1.5T |
+|  Image Segmentation  | Interactive segmentation prompted with boxes and points | SAM, MobileSAM, TinySAM, MedSAM, SAM-Med2D, FT-SAM, SAM-Med3D, FastSAM3D, SegVol | HAM10000, TUSC, FairSeg, Montgomery County X-ray, KiTS, CANDI, IRCADb, SPIDER |
+
+
+
+## Schedule
+
+- [x] Release the classification tasks.
+
+- [x] Release the segmentation tasks.
+
+- [ ] Release more models and datasets.
+
+## Installation
+
+1. Download from github
+
+   ```git
+   git clone https://github.com/FairMedFM/FairMedFM.git
+   cd FairMedFM
+   ```
+
+2. Creating conda environment
+
+   ```
+   conda env create -f environment.yaml
+   conda activate fairmedfm
+   ```
+
+## Getting Started
+
+### Data Preprocessing
+
+We provide data preprocessing scripts for each datasets [here](./notebooks/preprocess). The data preprocessing contains 3 steps:
+
+- (Optional) preprocess imaging data.
+- Preprocess metadata and sensitive attributes.
+- Split dataset into training set and test set with balanced subgroups.
+
+### Running Experiment
+
+We provide an example of running a linear-probe (classification) experiment of the CLIP model on the MIMIC-CXR dataset to evaluate fairness on sex. Please refer to [parse_args.py](./parse_args.py) for more details.
+
+```bash
+python main.py --task cls --usage lp --dataset CXP --sensitive_name Sex --method erm --total_epochs 100 --warmup_epochs 5 --blr 2.5e-4 --batch_size 128 --optimizer adamw --min_lr 1e-5 --weight_decay 0.05
+```
+
+## Acknowledgement
+
+We thank [MEDFAIR](https://github.com/ys-zong/MEDFAIR) for their pioneering works on benchmarking fairness for medical image analysis, and [Slide-SAM](https://github.com/Curli-quan/Slide-SAM) for the SAM inference framework.
+
+## License
+
+This project is released under the CC BY 4.0 license. Please see the LICENSE file for more information.
