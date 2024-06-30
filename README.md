@@ -2,8 +2,6 @@
 ## <div align =center> Fairness Benchmarking for Medical Imaging Foundation Models
 ![main](./figs/main.png)
 
-In this work, we propose FairMedFM, a comprehensive benchmark for medical foundation models in terms of the fairness with extendible codebase. Check out our [project page](https://nanboy-ronan.github.io/FairMedFM-page/) for more details and examples!
-
 ## Abstract
 The advent of foundation models (FMs) in healthcare offers unprecedented opportunities to enhance medical diagnostics through automated classification and segmentation tasks. However, these models also raise significant concerns about their fairness, especially when applied to diverse and underrepresented populations in healthcare applications. Currently, there is a lack of comprehensive benchmarks, standardized pipelines, and easily adaptable libraries to evaluate and understand the fairness performance of FMs in medical imaging, leading to considerable challenges in formulating and implementing solutions that ensure equitable outcomes across diverse patient populations. To fill this gap, we introduce FairMedFM, a fairness benchmark for FM research in medical imaging. FairMedFM integrates with 17 popular medical imaging datasets, encompassing different modalities, dimensionalities, and sensitive attributes. It explores 20 widely used FMs, with various usages such as zero-shot learning, linear probing, parameter-efficient fine-tuning, and prompting in various downstream tasks -- classification and segmentation. Our exhaustive analysis evaluates the fairness performance over different evaluation metrics from multiple perspectives, revealing the existence of bias, varied utility-fairness trade-offs on different FMs, consistent disparities on the same datasets regardless FMs, and limited effectiveness of existing unfairness mitigation methods. 
 
@@ -30,7 +28,10 @@ FairMedFM captures comprehensive modules for benchmarking the fairness of founda
 
 - [x] Release the classification tasks.
 
-- [x] Release the segmentation tasks.
+- [ ] Release the segmentation tasks.
+  - [x] 2D dataset + 2D SAMs
+  - [x] 3D dataset + 2D SAMs
+  - [ ] 3D dataset + 3D SAMs
 
 - [ ] Release more models and datasets.
 
