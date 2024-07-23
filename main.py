@@ -1,17 +1,19 @@
-from wrappers.utils import get_warpped_model
-from utils import basics
-from trainers.utils import get_trainer
-from models.utils import get_model
-from datasets.utils import get_dataset
-import parse_args
-from icecream import ic
-import torch.nn.functional as F
-import torch.nn as nn
-import torch
-import numpy as np
-import ipdb
 import json
 import os
+import random
+
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from icecream import ic
+
+import parse_args
+from datasets.utils import get_dataset
+from models.utils import get_model
+from trainers.utils import get_trainer
+from utils import basics
+from wrappers.utils import get_warpped_model
 
 os.environ["WANDB_DISABLED"] = "true"
 
@@ -25,6 +27,7 @@ def create_exerpiment_setting(args):
         args.exp_path,
         args.task,
         args.usage,
+        args.method,
         args.dataset,
         args.model,
         args.sensitive_name,
@@ -67,15 +70,20 @@ if __name__ == "__main__":
 
     torch.manual_seed(args.random_seed)
     np.random.seed(args.random_seed)
+    random.seed(args.random_seed)
+    if args.cuda:
+        torch.cuda.manual_seed(args.random_seed)
+        torch.cuda.manual_seed_all(args.random_seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
     train_data, train_dataloader, train_meta = get_dataset(args, split="train")
     test_data, test_dataloader, test_meta = get_dataset(args, split="test")
     model = get_model(args).to(args.device)
 
-    ic(train_data, train_dataloader, train_meta)
-    ic(test_data, test_dataloader, test_meta)
-    ic(model)
-    ipdb.set_trace()
+    # ic(train_data, train_dataloader, train_meta)
+    # ic(test_data, test_dataloader, test_meta)
+    # ic(model)
 
     if args.task == "cls":
         model = get_warpped_model(args, model).to(args.device)
@@ -83,7 +91,7 @@ if __name__ == "__main__":
         model = get_warpped_model(args, model, test_data).to(
             args.device)  # SAMLearner
 
-    trainer = get_trainer(args, model, logger)
+    trainer = get_trainer(args, model, logger, test_dataloader)
 
     if args.usage == "clip-zs":
         logger.info("Zero-shot performance:")
@@ -96,20 +104,13 @@ if __name__ == "__main__":
         trainer.init_optimizers()
         trainer.train(train_dataloader)
         trainer.evaluate(test_dataloader, save_path=os.path.join(
-            args.save_folder, "zs"))
+            args.save_folder, "lp_final"))
         exit(0)
 
-    elif args.usage == "seg2d-center":
-        logger.info("2D SegFM using 1 center point prompt performance:")
+    elif args.usage == "seg2d":
+        logger.info(f"2D SegFM using {args.prompt} prompt performance:")
         trainer.evaluate(test_dataloader, save_path=os.path.join(
-            args.save_folder, "center"))
-        exit(0)
-        # for seg, teh test_dataloader is not used.
-
-    elif args.usage == "seg2d-rand":
-        logger.info("2D SegFM using 1 random point prompt performance:")
-        trainer.evaluate(test_dataloader, save_path=os.path.join(
-            args.save_folder, "rand"))
+            args.save_folder, args.prompt))
         exit(0)
 
     elif args.usage == "seg2d-rands":
@@ -130,10 +131,6 @@ if __name__ == "__main__":
         trainer.evaluate(test_dataloader, save_path=os.path.join(
             args.save_folder, "center"))
         exit(0)
-
-    logger.info("Start training")
-    trainer.train(train_dataloader, test_dataloader)
-
-    logger.info("Final results:")
-    trainer.evaluate(test_dataloader, save_path=os.path.join(
-        args.save_folder, "lp_final"))
+    
+    else:
+        raise NotImplementedError
